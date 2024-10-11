@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['id'] = $row['id']; // Armazenar
                 $_SESSION['nome'] = $row['nome'];
                 $_SESSION['email'] = $row['email'];
-                header("Location: ../fy.html");
+                header("Location: fy.php");
                 exit;
             } else {
                 // Senha incorreta
