@@ -1,3 +1,45 @@
+<?php 
+session_start(); // Iniciar a sessão
+
+// Verificar se o usuário está logado
+if (!isset($_SESSION['usuario_id'])) {
+    header("Location: login.php"); // Redirecionar para o login se não estiver logado
+    exit();
+}
+
+// Conectar ao banco de dados
+$conn = new mysqli('localhost', 'root', '', 'meu_banco');
+if ($conn->connect_error) {
+    die("Conexão falhou: " . $conn->connect_error);
+}
+
+// Obter o ID do usuário logado da sessão
+$usuario_id = $_SESSION['usuario_id'];
+
+// Verificar se o perfil do usuário está completo
+$sql = "SELECT nome, email, fotos_perfil FROM usuarios WHERE id = ?";
+$stmt = $conn->prepare($sql);
+
+// Verifique se a preparação da declaração falhou
+if ($stmt === false) {
+    die("Erro na preparação da declaração: " . $conn->error);
+}
+
+$stmt->bind_param('i', $usuario_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$usuario = $result->fetch_assoc();
+$stmt->close(); // Fechar a declaração
+
+// Verifica se o nome ou o email está vazio
+$perfilIncompleto = empty($usuario['nome']) || empty($usuario['email']);
+
+if ($perfilIncompleto) {
+    header("Location: completar_perfil.php"); // Redirecionar para completar o perfil
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -12,7 +54,6 @@
 <body>
     <header>
         <div class="header-title">MONARCA</div>
-        
         <div>
             <a href="PHP/logout.php" class="header-menu">SAIR</a>
         </div>
@@ -21,30 +62,34 @@
     <main>
         <!-- Exibir as postagens do banco de dados -->
         <?php
-        // Conectar ao banco de dados
-        $conn = new mysqli('localhost', 'root', '', 'meu_banco');
-        if ($conn->connect_error) {
-            die("Conexão falhou: " . $conn->connect_error);
-        }
-
-        // Buscar as postagens
-        $sql = "SELECT * FROM posts ORDER BY data_postagem DESC";
+        // Buscar as postagens com informações do usuário
+        $sql = "SELECT posts.*, usuarios.nome, usuarios.fotos_perfil FROM posts 
+                JOIN usuarios ON posts.usuario_id = usuarios.id 
+                ORDER BY data_postagem DESC";
+        
         $result = $conn->query($sql);
+
+        // Verifique se a consulta foi bem-sucedida
+        if ($result === false) {
+            die("Erro na consulta: " . $conn->error);
+        }
 
         // Exibir as postagens se houverem
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 echo "<div class='post'>";
                 echo "<div class='post-header'>";
-                echo "<img src='img/logo.png' alt='Logo Monarca' class='post-icon'>";
-                echo "<span class='post-username'>MONARCA</span>";
+                // Exibir a foto do usuário
+                echo "<img src='uploads/" . htmlspecialchars($row['fotos_perfil']) . "' alt='Foto de Perfil' class='post-icon' width='50' height='50'>"; // Ajuste o tamanho conforme necessário
+                // Exibir o nome do usuário
+                echo "<span class='post-username'>" . htmlspecialchars($row['nome']) . "</span>";
                 echo "</div>";
                 echo "<div class='post-body'>";
                 echo "<p>" . htmlspecialchars($row['texto']) . "</p>";
 
                 // Exibir foto se existir
                 if (!empty($row['foto'])) {
-                    echo "<img src='uploads/" . htmlspecialchars($row['foto']) . "' alt='Postagem' class='post-img'>";
+                    echo "<img src='uploads/" . htmlspecialchars($row['foto']) . "' alt='Postagem' class='post-img' style='max-width: 100%; height: auto;'>";
                 }
 
                 // Exibir vídeo se existir
@@ -59,7 +104,7 @@
                 echo "</div>"; // End post
             }
         } else {
-            echo "Nenhuma postagem encontrada.";
+            echo "<div>Nenhuma postagem encontrada.</div>";
         }
 
         $conn->close();
@@ -67,7 +112,9 @@
     </main>
 
     <nav class="bottom-nav">
-        <i class="fa-solid fa-house" style="color: #FF9A00;"></i>
+        <a href="fy.php">
+            <i class="fa-solid fa-house" style="color: #FF9A00;"></i>
+        </a>
 
         <a href="../videos.html">
             <i class="fa-solid fa-magnifying-glass fa-lg"></i>
@@ -81,7 +128,7 @@
             <i class="fa-solid fa-book-open fa-sm"></i>
         </a>
 
-        <a href="../perfil.html">
+        <a href="perfil.php">
             <i class="fa-solid fa-user fa-lg"></i>
         </a>
     </nav>

@@ -27,15 +27,17 @@ $result = $conn->query($sql);
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 echo "<div class='postagem'>";
+                // Exibir foto de perfil do usuário
+                if (!empty($row['fotos_perfil'])) {
+                    echo "<img src='uploads/" . htmlspecialchars($row['foto_perfil']) . "' alt='Foto de Perfil' style='max-width: 50px; border-radius: 50%;'>"; // Adicione o estilo para ser circular
+                }
+                echo "<p><strong>" . htmlspecialchars($row['nomes_usuario']) . "</strong></p>"; // Nome do usuário
                 echo "<p>" . htmlspecialchars($row['texto']) . "</p>";
 
                 // Exibir foto, se houver
                 if (!empty($row['foto'])) {
                     $fotoPath = 'uploads/' . htmlspecialchars($row['foto']);
                     echo "<img src='$fotoPath' alt='Foto' style='max-width: 300px;'>";
-                    echo "<p>Foto: $fotoPath</p>"; // Adicione esta linha para depuração
-                } else {
-                    echo "<p>Nenhuma foto disponível.</p>"; // Adicione esta linha para depuração
                 }
 
                 // Exibir vídeo, se houver
@@ -45,9 +47,6 @@ $result = $conn->query($sql);
                             <source src='$videoPath' type='video/mp4'>
                             Seu navegador não suporta a tag de vídeo.
                           </video>";
-                    echo "<p>Vídeo: $videoPath</p>"; // Adicione esta linha para depuração
-                } else {
-                    echo "<p>Nenhum vídeo disponível.</p>"; // Adicione esta linha para depuração
                 }
 
                 echo "</div>";
