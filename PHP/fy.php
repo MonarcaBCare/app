@@ -1,4 +1,4 @@
-<?php  
+<?php   
 session_start(); // Iniciar a sessão
 
 // Verificar se o usuário está logado
@@ -17,10 +17,9 @@ if ($conn->connect_error) {
 $usuario_id = $_SESSION['usuario_id'];
 
 // Verificar se o perfil do usuário está completo
-$sql = "SELECT nome, email, fotos_perfil FROM usuarios WHERE id = ?";
+$sql = "SELECT nome, email, pic_perfil FROM usuarios WHERE id = ?";
 $stmt = $conn->prepare($sql);
 
-// Verifique se a preparação da declaração falhou
 if ($stmt === false) {
     die("Erro na preparação da declaração: " . $conn->error);
 }
@@ -63,63 +62,50 @@ if ($perfilIncompleto) {
         <!-- Exibir as postagens do banco de dados -->
         <?php
         // Buscar as postagens com informações do usuário
-        $sql = "SELECT posts.*, usuarios.nome, usuarios.fotos_perfil FROM posts 
-                JOIN usuarios ON posts.usuario_id = usuarios.id 
-                ORDER BY data_postagem DESC";
-        
-        $result = $conn->query($sql);
+        $sql = "SELECT posts.*, usuarios.nome, usuarios.pic_perfil FROM posts 
+        JOIN usuarios ON posts.usuario_id = usuarios.id 
+        ORDER BY data_postagem DESC";
 
-        // Verifique se a consulta foi bem-sucedida
-        if ($result === false) {
-            die("Erro na consulta: " . $conn->error);
-        }
+$result = $conn->query($sql);
 
-        // Exibir as postagens se houverem
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                echo "<div class='post'>";
-                echo "<div class='post-header'>";
-                // Exibir a foto do usuário
-                echo "<img src='uploads/" . htmlspecialchars($row['fotos_perfil']) . "' alt='Foto de Perfil' class='post-icon' width='50' height='50'>"; // Ajuste o tamanho conforme necessário
-                // Exibir o nome do usuário
-                echo "<span class='post-username'>" . htmlspecialchars($row['nome']) . "</span>";
-                echo "</div>";
-                echo "<div class='post-body'>";
-                echo "<p>" . htmlspecialchars($row['texto']) . "</p>";
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        echo "<div class='post'>";
+        echo "<div class='post-header'>";
+        echo "<img src='uploads/" . htmlspecialchars($row['pic_perfil']) . "' alt='Foto de Perfil' class='post-icon' width='50' height='50'>";
+        echo "<span class='post-username'>" . htmlspecialchars($row['nome']) . "</span>";
+        echo "</div>";
+        echo "<div class='post-body'>";
+        echo "<p>" . htmlspecialchars($row['texto']) . "</p>";
 
-               // Exibir foto se existir
-if (!empty($row['foto'])) {
-    $fotoPath = 'uploads/' . htmlspecialchars($row['foto']);
-    
-    // Verifica se o arquivo existe antes de tentar exibi-lo
-    if (file_exists($fotoPath)) {
-        echo "<p>Foto: " . htmlspecialchars($row['foto']) . "</p>"; // Mensagem de depuração
-        echo "<img src='" . $fotoPath . "' alt='Postagem' class='post-img' style='max-width: 100%; height: auto;'>";
-    } else {
-        echo "<p>Imagem não encontrada no caminho: " . $fotoPath . "</p>"; // Mensagem se o arquivo não existir
-    }
-} else {
-    echo "<p>Nenhuma imagem encontrada para esta postagem.</p>"; // Mensagem se não houver imagem
-}
-
-
-                // Exibir vídeo se existir
-                if (!empty($row['video'])) {
-                    echo "<p>Vídeo: " . htmlspecialchars($row['video']) . "</p>"; // Mensagem de depuração
-                    echo "<video width='300' controls>
-                            <source src='uploads/" . htmlspecialchars($row['video']) . "' type='video/mp4'>
-                            Seu navegador não suporta vídeos.
-                          </video>";
-                }
-
-                echo "</div>"; // End post-body
-                echo "</div>"; // End post
+        // Exibir foto se existir
+        if (!empty($row['foto'])) {
+            $fotoPath = 'uploads/' . htmlspecialchars($row['foto']);
+            if (file_exists($fotoPath)) {
+                echo "<img src='" . $fotoPath . "' alt='Postagem' class='post-img' style='max-width: 100%; height: auto;'>";
+            } else {
+                echo "<p>Imagem não encontrada no caminho: " . $fotoPath . "</p>";
             }
         } else {
-            echo "<div>Nenhuma postagem encontrada.</div>";
+            echo "<p>Nenhuma imagem encontrada para esta postagem.</p>";
         }
 
-        $conn->close();
+        // Exibir vídeo se existir
+        if (!empty($row['video'])) {
+            echo "<video width='300' controls>
+                    <source src='uploads/" . htmlspecialchars($row['video']) . "' type='video/mp4'>
+                    Seu navegador não suporta vídeos.
+                  </video>";
+        }
+
+        echo "</div>"; // End post-body
+        echo "</div>"; // End post
+    }
+} else {
+    echo "<div>Nenhuma postagem encontrada.</div>";
+}
+
+$conn->close();
         ?>
     </main>
 

@@ -26,8 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (password_verify($senha, $usuario['senha'])) {
             // Armazenar os dados do usuário na sessão
             $_SESSION['usuario_id'] = $usuario['id'];
-            $_SESSION['usuario_nome'] = $usuario['nome'];
-            $_SESSION['usuario_email'] = $usuario['email'];
+            $_SESSION['nome'] = $usuario['nome']; // Alterei de usuario_nome para nome
+            $_SESSION['email'] = $usuario['email']; // Alterei de usuario_email para email
 
             // Redirecionar para a página principal (fy.php)
             header("Location: fy.php");

@@ -28,8 +28,8 @@ $result = $conn->query($sql);
             while ($row = $result->fetch_assoc()) {
                 echo "<div class='postagem'>";
                 // Exibir foto de perfil do usuário
-                if (!empty($row['fotos_perfil'])) {
-                    echo "<img src='uploads/" . htmlspecialchars($row['foto_perfil']) . "' alt='Foto de Perfil' style='max-width: 50px; border-radius: 50%;'>"; // Adicione o estilo para ser circular
+                if (!empty($row['pic_perfil'])) {
+                    echo "<img src='uploads/" . htmlspecialchars($row['fotos_perfil']) . "' alt='Foto de Perfil' style='max-width: 50px; border-radius: 50%;'>"; // Adicione o estilo para ser circular
                 }
                 echo "<p><strong>" . htmlspecialchars($row['nomes_usuario']) . "</strong></p>"; // Nome do usuário
                 echo "<p>" . htmlspecialchars($row['texto']) . "</p>";

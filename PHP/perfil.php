@@ -17,7 +17,7 @@ if ($conn->connect_error) {
 $usuario_id = $_SESSION['usuario_id'];
 
 // Verificar se o perfil do usuário está completo
-$sql = "SELECT nome, email, fotos_perfil FROM usuarios WHERE id = ?";
+$sql = "SELECT nome, email, pic_perfil FROM usuarios WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('i', $usuario_id);
 $stmt->execute();
@@ -33,21 +33,21 @@ if ($perfilIncompleto) {
 }
 
 // Processar o upload da nova foto de perfil
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['foto_perfil'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pic_perfil'])) {
     $uploadDir = 'uploads/';
-    $fotoPerfil = basename($_FILES['foto_perfil']['name']);
+    $fotoPerfil = basename($_FILES['pic_perfil']['name']);
     $fotoPath = $uploadDir . $fotoPerfil;
 
     // Mover a imagem para o diretório de uploads
-    if (move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $fotoPath)) {
+    if (move_uploaded_file($_FILES['pic_perfil']['tmp_name'], $fotoPath)) {
         // Atualizar o caminho da foto no banco de dados
-        $sqlUpdate = "UPDATE usuarios SET fotos_perfil = ? WHERE id = ?";
+        $sqlUpdate = "UPDATE usuarios SET pic_perfil = ? WHERE id = ?";
         $stmtUpdate = $conn->prepare($sqlUpdate);
         $stmtUpdate->bind_param('si', $fotoPerfil, $usuario_id);
         
         if ($stmtUpdate->execute()) {
             echo "Foto de perfil atualizada com sucesso!";
-            $_SESSION['fotos_perfil'] = $fotoPerfil; // Atualiza a sessão com a nova foto
+            $_SESSION['pic_perfil'] = $fotoPerfil; // Atualiza a sessão com a nova foto
         } else {
             echo "Erro ao atualizar a foto de perfil: " . $stmtUpdate->error;
         }
@@ -76,8 +76,8 @@ $conn->close();
     <main>
         <h2><?php echo htmlspecialchars($usuario['nome']); ?></h2>
         <!-- Exibir a foto de perfil do usuário -->
-        <?php if (!empty($usuario['fotos_perfil'])): ?>
-            <img src="uploads/<?php echo htmlspecialchars($usuario['fotos_perfil']); ?>" alt="Foto de perfil" width="100">
+        <?php if (!empty($usuario['pic_perfil'])): ?>
+            <img src="uploads/<?php echo htmlspecialchars($usuario['pic_perfil']); ?>" alt="Foto de perfil" width="100">
         <?php else: ?>
             <p>Foto de perfil não disponível.</p>
         <?php endif; ?>
@@ -86,8 +86,8 @@ $conn->close();
 
         <!-- Formulário para upload da nova foto de perfil -->
         <form action="" method="post" enctype="multipart/form-data">
-            <label for="foto_perfil">Escolha uma nova foto de perfil:</label>
-            <input type="file" name="foto_perfil" id="foto_perfil" accept="image/*" required>
+            <label for="pic_perfil">Escolha uma nova foto de perfil:</label>
+            <input type="file" name="pic_perfil" id="pic_perfil" accept="image/*" required>
             <button type="submit">Atualizar Foto de Perfil</button>
         </form>
     </main>
