@@ -1,4 +1,4 @@
-<?php
+<?php 
 // Inicie a sessão
 session_start();
 
@@ -10,6 +10,16 @@ if ($conn->connect_error) {
 
 // Verificar se o formulário foi enviado
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Recuperar informações do usuário da sessão
+    $usuario_id = $_SESSION['usuario_id']; // Supondo que você armazena o ID do usuário na sessão
+
+    // Verifique se o nome do usuário está definido na sessão
+    if (!isset($_SESSION['nome'])) {
+        die("Nome do usuário não está definido na sessão."); // Mensagem de erro
+    }
+    $nome_usuario = $_SESSION['nome']; // Supondo que você armazena o nome do usuário na sessão
+
+    // Recuperar texto da postagem
     $texto = $_POST['texto'];
     $foto = null;
     $video = null;
@@ -50,10 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    // Recuperar informações do usuário da sessão
-    $usuario_id = $_SESSION['usuario_id']; // Supondo que você armazena o ID do usuário na sessão
-    $nome_usuario = $_SESSION['nome']; // Supondo que você armazena o nome do usuário na sessão
-    
     // Verificar se a foto de perfil está definida; caso contrário, definir como uma imagem padrão
     $foto_perfil = isset($_SESSION['fotos_perfil']) ? $_SESSION['fotos_perfil'] : 'default_profile_picture.png'; // Insira o caminho da sua imagem padrão
 
@@ -84,5 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->close();
 }
 
+// Fechar a conexão
 $conn->close();
 ?>

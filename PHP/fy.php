@@ -1,4 +1,4 @@
-<?php 
+<?php  
 session_start(); // Iniciar a sessão
 
 // Verificar se o usuário está logado
@@ -87,13 +87,25 @@ if ($perfilIncompleto) {
                 echo "<div class='post-body'>";
                 echo "<p>" . htmlspecialchars($row['texto']) . "</p>";
 
-                // Exibir foto se existir
-                if (!empty($row['foto'])) {
-                    echo "<img src='uploads/" . htmlspecialchars($row['foto']) . "' alt='Postagem' class='post-img' style='max-width: 100%; height: auto;'>";
-                }
+               // Exibir foto se existir
+if (!empty($row['foto'])) {
+    $fotoPath = 'uploads/' . htmlspecialchars($row['foto']);
+    
+    // Verifica se o arquivo existe antes de tentar exibi-lo
+    if (file_exists($fotoPath)) {
+        echo "<p>Foto: " . htmlspecialchars($row['foto']) . "</p>"; // Mensagem de depuração
+        echo "<img src='" . $fotoPath . "' alt='Postagem' class='post-img' style='max-width: 100%; height: auto;'>";
+    } else {
+        echo "<p>Imagem não encontrada no caminho: " . $fotoPath . "</p>"; // Mensagem se o arquivo não existir
+    }
+} else {
+    echo "<p>Nenhuma imagem encontrada para esta postagem.</p>"; // Mensagem se não houver imagem
+}
+
 
                 // Exibir vídeo se existir
                 if (!empty($row['video'])) {
+                    echo "<p>Vídeo: " . htmlspecialchars($row['video']) . "</p>"; // Mensagem de depuração
                     echo "<video width='300' controls>
                             <source src='uploads/" . htmlspecialchars($row['video']) . "' type='video/mp4'>
                             Seu navegador não suporta vídeos.
