@@ -44,9 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pic_perfil'])) {
         $sqlUpdate = "UPDATE usuarios SET pic_perfil = ? WHERE id = ?";
         $stmtUpdate = $conn->prepare($sqlUpdate);
         $stmtUpdate->bind_param('si', $fotoPerfil, $usuario_id);
-        
+
         if ($stmtUpdate->execute()) {
-            echo "Foto de perfil atualizada com sucesso!";
             $_SESSION['pic_perfil'] = $fotoPerfil; // Atualiza a sessão com a nova foto
         } else {
             echo "Erro ao atualizar a foto de perfil: " . $stmtUpdate->error;
@@ -58,16 +57,176 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pic_perfil'])) {
     }
 }
 
+// Processar a alteração do nome
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
+    $novoNome = trim($_POST['nome']);
+
+    if (!empty($novoNome)) {
+        $sqlUpdateNome = "UPDATE usuarios SET nome = ? WHERE id = ?";
+        $stmtUpdateNome = $conn->prepare($sqlUpdateNome);
+        $stmtUpdateNome->bind_param('si', $novoNome, $usuario_id);
+
+        if ($stmtUpdateNome->execute()) {
+            $_SESSION['usuario_nome'] = $novoNome; // Atualiza o nome na sessão
+        } else {
+            echo "Erro ao atualizar o nome: " . $stmtUpdateNome->error;
+        }
+
+        $stmtUpdateNome->close();
+    } else {
+        echo "Nome não pode ser vazio.";
+    }
+}
+
 $conn->close();
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="perfil.css">
     <title>Perfil - App Monarca</title>
 </head>
+<style>
+    /* perfil.css */
+
+    /* Estilos gerais */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+    }
+
+    header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    h1 {
+        font-size: 2.5em;
+        color: #333;
+    }
+
+    h2 {
+        color: #555;
+        margin: 10px 0;
+    }
+
+    main {
+        max-width: 600px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        margin-bottom: 10px;
+    }
+
+    p {
+        font-size: 1em;
+        margin: 10px 0;
+    }
+
+    /* Estilos dos formulários */
+    form {
+        margin: 20px 0;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    input[type="file"],
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    button {
+        background-color: #28a745;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: #218838;
+    }
+
+    /* Estilo do botão de voltar */
+    .btn-container {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .btn-voltar {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+
+    .btn-voltar:hover {
+        background-color: #0056b3;
+    }
+
+    /* Estilo do rodapé */
+    footer {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    footer a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    footer a:hover {
+        text-decoration: underline;
+    }
+
+    /* Estilo do input de arquivo */
+.file-input {
+    display: none; /* Esconde o input padrão */
+}
+
+.file-label {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.file-label:hover {
+    background-color: #0056b3;
+}
+
+</style>
+
 <body>
     <header>
         <h1>Perfil do Usuário</h1>
@@ -75,82 +234,36 @@ $conn->close();
 
     <main>
         <h2><?php echo htmlspecialchars($usuario['nome']); ?></h2>
-        <!-- Exibir a foto de perfil do usuário -->
-        <?php if (!empty($usuario['pic_perfil'])): ?>
-            <img src="uploads/<?php echo htmlspecialchars($usuario['pic_perfil']); ?>" alt="Foto de perfil" width="100">
-        <?php else: ?>
+
+        <?php if (!empty($usuario['pic_perfil'])) : ?>
+            <img src="uploads/<?php echo htmlspecialchars($usuario['pic_perfil']); ?>" alt="Foto de perfil">
+        <?php else : ?>
             <p>Foto de perfil não disponível.</p>
         <?php endif; ?>
-        
+
         <p>Email: <?php echo htmlspecialchars($usuario['email']); ?></p>
 
-        <!-- Formulário para upload da nova foto de perfil -->
         <form action="" method="post" enctype="multipart/form-data">
-            <label for="pic_perfil">Escolha uma nova foto de perfil:</label>
-            <input type="file" name="pic_perfil" id="pic_perfil" accept="image/*" required>
-            <button type="submit">Atualizar Foto de Perfil</button>
+            <label for="pic_perfil" class="file-label">Escolha uma nova foto de perfil</label><br>
+            <input type="file" name="pic_perfil" id="pic_perfil" accept="image/*" required class="file-input">
+            <button type="submit" onclick="location.reload();">Atualizar Foto de Perfil</button>
         </form>
-    </main>
-    <div style="margin: 20px;">
-    <a href="fy.php" class="btn-voltar">Voltar para o Feed</a>
-</div>
 
+
+        <form action="" method="post">
+            <label for="nome">Novo Nome:</label>
+            <input type="text" name="nome" id="nome" required>
+            <button type="submit"  onclick="location.reload();">Alterar Nome</button>
+        </form>
+    </main><br>
+
+    <div class="btn-container">
+        <a href="fy.php" class="btn-voltar">Voltar para o Feed</a>
+    </div>
 
     <footer>
         <a href="logout.php">Sair</a>
     </footer>
 </body>
+
 </html>
-
-<!-- <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil do Usuário</title>
-    <link rel="stylesheet" href="perfil.css"> <!-- Link para o CSS -->
-<!-- </head>
-<body>
-    <div class="profile-header">
-        <img src="profile-picture.jpg" alt="Foto de Perfil" class="profile-picture">
-        <h2 class="profile-name">Nome do Usuário</h2>
-        <p class="profile-email">email@exemplo.com</p>
-        <input type="file" id="profilePictureInput" accept="image/*" />
-        <button class="edit-profile-button">Editar Perfil</button>
-    </div>
-    
-        <div class="profile-details">
-            <h3>Sobre Mim</h3>
-            <p>Descrição do usuário vai aqui.</p>
-            
-            <h3>Atividades Recentes</h3>
-            <ul class="activity-list">
-                <li>Atividade 1</li>
-                <li>Atividade 2</li>
-                <li>Atividade 3</li>
-            </ul>
-        </div>
-        <button class="edit-profile-button">Editar Perfil</button>
-    </div>
-
-    <!-- Modal para edição de perfil -->
-    <!-- Modal para edição de perfil -->
-<!-- <div id="editProfileModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <form id="editProfileForm">
-            <label for="name">Nome:</label>
-            <input type="text" id="name" required>
-            <label for="email">Email:</label>
-            <input type="email" id="email" required>
-            <button type="submit">Salvar</button>
-        </form>
-    </div>
-</div>
-<div class="back-button">
-    <a href="fy.html">Voltar</a>
-</div>
-    Script JavaScript -->
-    <!-- <script src="script.js"></script> Link para o JavaScript -->
-<!-- </body>
-</html>   -->
