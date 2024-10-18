@@ -5,22 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#ffffff">
     <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="login.css">
-    <title>Login - App Monarca</title>
+    <title>Login</title>
 </head>
 <body>
-    <div class="container">
-        <div class="login-form">
-            <h2>LOGIN</h2>
-            <h3>FAÇA LOGIN OU SE CADASTRE</h3>
-            <input type="email" placeholder="Digite seu email" required>
-            <input type="password" placeholder="Digite sua senha" required>
-            <a href="PHP/fy.php">
-                <button id="login-btn">Entrar</button>
-            </a>     
-            <p>Não tem uma conta? <a href="#" id="register-link">Cadastrar</a></p>
-        </div>
-    </div>
+    <button class="open-modal" data-modal="modal-1">
+        Iniciar Login
+    </button>
+
+    <dialog id="modal-1">
+        <form>
+            <div class="modal-header">
+                <h1 class="modal-title">
+                    Login
+                </h1>
+                <button class="close-modal" data-modal="modal-1" type="button">
+                    <i class="fa-solid fa-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="email">
+                        Email
+                    </label>
+                    <input type="email" id="email" name="email" placeholder="name@email.com">
+                </div>
+
+                <div class="input-group">
+                    <label for="senha">
+                        Senha
+                    </label>
+                    <input type="senha" id="senha" name="senha" placeholder="Digite sua senha">
+                </div>
+                <div class="password-options">
+                    <div class="remember-password">
+                        <input type="checkbox" name="remeber_password" id="remeber_password">
+                        <label for="remember password">Lembrar senha</label>
+                    </div>
+                    <a href="#" class="forgot-password">
+                        Esqueci minha senha
+                    </a>
+                </div>
+                <button id="login_button">
+                    Entrar
+                </button>
+                <div class="register">
+                    <span>Não tem uma conta?</span>
+                    <a href="#">
+                        Cadastre aqui
+                    </a>
+                </div>
+            </div>
+        </form>
+    </dialog>
+    
     <script src="app.js"></script>
 </body>
 </html>
